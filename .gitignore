@@ -1,6 +1,9 @@
 # wandb
 notebooks/wandb/*
 
+# data
+data/processed
+
 # models
 models/yelpBERT/model.safetensors
 
