@@ -1,52 +1,30 @@
 import pandas as pd
 import pathlib
 from datasets import load_dataset
-from transformers import AutoTokenizer
-from trl.core import LengthSampler
+from sklearn.model_selection import train_test_split
+from src.parameters import REV_DATA_CONFIG as CONFIG, MT_DATA_FILE, MT_SEED, MT_TEST_SPLIT
 
 
-def collator(data):
-    return dict((key, [d[key] for d in data]) for key in data[0])
+def prepare_translation_dataset(filepath: pathlib.Path = MT_DATA_FILE) -> pd.DataFrame:
+    translations = pd.read_csv(filepath)
+    train_dataset, _ = train_test_split(translations, test_size=MT_TEST_SPLIT, random_state=MT_SEED)
+    return train_dataset
 
 
-def build_dataset(config, dataset_name="yelp_review_full", input_min_text_length=3, input_max_text_length=6):
-    """
-    Build dataset for training. This builds the dataset from `load_dataset`.
-
-    Args:
-        dataset_name (`str`):
-            The name of the dataset to be loaded.
-
-    Returns:
-        dataloader (`torch.utils.data.DataLoader`):
-            The dataloader for the dataset.
-    """
-
-    # Define a custom function to convert ratings to True or False
-    def convert_labels(example):
-        example["label"] = 1 if example["label"] > 2 else 0
-        return example
-
-    tokenizer = AutoTokenizer.from_pretrained(config.model_name)
-    tokenizer.pad_token = tokenizer.eos_token
-
-    ds = load_dataset(dataset_name, split="test")
-    ds = ds.rename_columns({"text": "review"})
-    ds = ds.filter(lambda x: x["label"] != 2, batched=False)
-    ds = ds.filter(lambda x: len(x["review"]) > 60, batched=False)
-    ds = ds.filter(lambda x: len(x["review"]) < 100, batched=False)
-    ds = ds.map(convert_labels)
-
-    input_size = LengthSampler(input_min_text_length, input_max_text_length)
-
-    def tokenize(sample):
-        sample["input_ids"] = tokenizer.encode(sample["review"])[: input_size()]
-        sample["query"] = tokenizer.decode(sample["input_ids"])
+def prepare_review_dataset(dataset_name: str = "yelp_review_full") -> list[str]:
+    def cut(sample):
+        sample["query"] = " ".join(sample["text"].split()[: CONFIG["start_review_words"]])
         return sample
 
-    ds = ds.map(tokenize, batched=False)
-    ds.set_format(type="torch")
-    return ds
+    dataset = load_dataset(dataset_name, split="test")
+    dataset = dataset.filter(lambda x: len(x["text"]) > CONFIG["min_text_len"], batched=False)
+    dataset = dataset.filter(lambda x: len(x["text"]) < CONFIG["max_text_len"], batched=False)
+    dataset = dataset.filter(lambda x: x["label"] < CONFIG["max_review_value"], batched=False)
+    dataset = dataset.filter(lambda x: x["label"] > CONFIG["min_review_value"], batched=False)
+    dataset = dataset.map(cut, batched=False)
+    train_ds, _ = train_test_split(dataset, test_size=CONFIG["test_train_split"],
+                                   random_state=CONFIG["random_state"])
+    return train_ds["query"]
 
 
 def process_translations():

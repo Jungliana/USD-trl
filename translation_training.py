@@ -1,5 +1,5 @@
 import argparse
-from src.trainings import mt_training
+from src.full_trainings import mt_training
 
 
 def get_args() -> argparse.Namespace:
