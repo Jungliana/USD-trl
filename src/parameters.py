@@ -1,5 +1,22 @@
 from trl import PPOConfig
 
+REV_MODEL = "gpt2"
+REV_SEED = 2345
+REV_TEST_SPLIT = 0.99
+REV_OUTPUT_MIN_LEN = 10
+REV_OUTPUT_MAX_LEN = 24
+
+# ----- REVIEWS TRAININGS -----
+REV_PPO_CONFIG = PPOConfig(
+    learning_rate=1.41e-5,
+    log_with="wandb",
+    task_name="review generation",
+    model_name="gpt2",
+    query_dataset="yelp_review_full",
+    reward_model="yelpBERT",
+    tracker_project_name="trl-review",
+)
+
 
 # ----- MACHINE TRANSLATION TRAININGS -----
 MT_DATA_FILE = "data/processed/translations.csv"
