@@ -99,7 +99,7 @@ class TranslationTraining(Training):
 
             # train model for one step with ppo
             train_stats = self.ppo_trainer.step([query_tensor[0]], [response_tensor[0]], reward)
-            self.ppo_trainer.log_stats(train_stats, {"query": text, "response": result_txt}, reward)
+            self.ppo_trainer.log_stats(train_stats, {"query": [text], "response": result_txt}, reward)
 
 
 class ReviewTraining(Training):
@@ -136,8 +136,10 @@ class ReviewTraining(Training):
             query_tensor = self.tokenizer.encode(query_txt, return_tensors="pt").to(self.device)
 
             # generate model response
-            response_tensor = self.ppo_trainer.generate([item for item in query_tensor],
-                                                        return_prompt=True, **param.GEN_KWARGS)
+            response_tensor = self.ppo_trainer.generate(list(query_tensor),
+                                                        return_prompt=True,
+                                                        pad_token_id=self.tokenizer.eos_token_id,
+                                                        **param.GEN_KWARGS)
             response_txt = self.tokenizer.decode(response_tensor[0], skip_special_tokens=True)
             if self.human_feedback or self.debug:
                 print(f'Response: {response_txt}')
@@ -154,4 +156,5 @@ class ReviewTraining(Training):
 
             # train model for one step with ppo
             train_stats = self.ppo_trainer.step([query_tensor[0]], [response_tensor[0]], reward)
-            self.ppo_trainer.log_stats(train_stats, {"query": query_txt, "response": response_txt}, reward)
+            self.ppo_trainer.log_stats(train_stats, {"query": [query_txt],
+                                                     "response": [response_txt]}, reward)

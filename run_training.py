@@ -35,7 +35,7 @@ def get_args() -> argparse.Namespace:
         "-e",
         "--epochs",
         type=positive_int,
-        dest="num_epochs",
+        dest="epochs",
         default=1,
         help="Number of training epochs. Needs to be a positive number.",
     )
@@ -52,7 +52,7 @@ def get_args() -> argparse.Namespace:
     parser.add_argument(
         "-v",
         "--verbose",
-        dest="is_verbose",
+        dest="debug",
         action="store_true",
         default=False,
         help="Show more details about execution",

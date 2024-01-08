@@ -18,7 +18,7 @@ DATA_CONFIG = {
     "max_text_len": 120,
     "max_review_value": 4,
     "min_review_value": 0,
-    "test_train_split": 0.99,
+    "test_train_split": 0.95,
 }
 
 GEN_KWARGS = {
@@ -51,7 +51,7 @@ PPO_CONFIG = PPOConfig(
 # ----- MACHINE TRANSLATION TRAININGS -----
 MT_DATA_FILE = "data/processed/translations.csv"
 MT_MODEL = "Helsinki-NLP/opus-mt-pl-en"
-MT_TEST_SPLIT = 0.99
+MT_TEST_SPLIT = 0.95
 
 MT_PPO_CONFIG = PPOConfig(
     batch_size=1,

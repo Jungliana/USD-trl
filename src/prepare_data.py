@@ -2,7 +2,7 @@ import pandas as pd
 import pathlib
 from datasets import load_dataset
 from sklearn.model_selection import train_test_split
-from src.parameters import REV_DATA_CONFIG as CONFIG, MT_DATA_FILE, SEED, MT_TEST_SPLIT
+from src.parameters import DATA_CONFIG as CONFIG, MT_DATA_FILE, SEED, MT_TEST_SPLIT
 
 
 def prepare_translation_dataset(filepath: pathlib.Path = MT_DATA_FILE) -> pd.DataFrame:
