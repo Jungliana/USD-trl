@@ -20,9 +20,6 @@ class Training:
         self.device: torch.device = self.choose_device()
         self.dataset = self.prepare_dataset()
         self.model: PreTrainedModelWrapper = None
-        self.model_ref = None
-        self.tokenizer = None
-        self.ppo_trainer = None
 
     def choose_device(self) -> torch.device:
         """
@@ -100,7 +97,8 @@ class TranslationTraining(Training):
 
             # train model for one step with ppo
             train_stats = self.ppo_trainer.step([query_tensor[0]], [response_tensor[0]], reward)
-            self.ppo_trainer.log_stats(train_stats, {"query": [text], "response": result_txt}, reward)
+            self.ppo_trainer.log_stats(train_stats, {"query": [text],
+                                                     "response": result_txt}, reward)
 
 
 class ReviewTraining(Training):
