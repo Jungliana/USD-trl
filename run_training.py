@@ -1,5 +1,7 @@
 import argparse
-from src.full_trainings import mt_training
+from src.training import TranslationTraining, ReviewTraining
+
+TYPE_CHOICES = ["translation", "review"]
 
 
 def get_args() -> argparse.Namespace:
@@ -10,14 +12,23 @@ def get_args() -> argparse.Namespace:
     :rtype: argparse.Namespace
     """
     parser = argparse.ArgumentParser(
-        description="Run trl training - machine translation model.",
+        description="Run trl training - translation or review task.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+
+    parser.add_argument(
+        "-t",
+        "--type",
+        choices=TYPE_CHOICES,
+        default=TYPE_CHOICES[0],
+        dest="type",
+        help="Choose training task.",
     )
 
     def positive_int(text: str):
         val = int(text)
         if val <= 0:
-            raise argparse.ArgumentTypeError(f"{val} is not a valid value for positive integer")
+            raise argparse.ArgumentTypeError(f"{val} is not a valid value for positive integer.")
         return val
 
     parser.add_argument(
@@ -49,6 +60,14 @@ def get_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def main(args: argparse.Namespace) -> None:
+    if args.type == "translation":
+        trainer = TranslationTraining(args.human_feedback, args.debug, args.epochs)
+    else:
+        trainer = ReviewTraining(args.human_feedback, args.debug, args.epochs)
+    trainer.train()
+
+
 if __name__ == "__main__":
-    args = get_args()
-    mt_training(args.human_feedback, args.is_verbose, args.num_epochs)
+    arguments = get_args()
+    main(arguments)

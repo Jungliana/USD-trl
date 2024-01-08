@@ -33,11 +33,11 @@ class Training:
         return None
 
     def training_loop(self) -> None:
-        pass
         # encode a query
         # generate model response
         # define reward for a response
         # train model with ppo
+        pass
 
     def generate_reward(self):
         return [torch.tensor(1.0, device=self.device)]
@@ -145,8 +145,8 @@ class ReviewTraining(Training):
             # define a reward for response
             if not self.human_feedback:
                 pipe_outputs = self.pipeline(response_txt, **param.REV_SENT_KWARGS)
-                reward = [torch.tensor(next(val for val in pipe_outputs if val["label"] == "POS")['score'],
-                                       device=self.device)]
+                reward = next(val for val in pipe_outputs if val["label"] == param.REV_LABEL)['score']
+                reward = [torch.tensor(reward, device=self.device)]
                 if self.debug:
                     print(f'Reward: {reward[0].item()}')
             else:
