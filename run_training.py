@@ -66,6 +66,7 @@ def main(args: argparse.Namespace) -> None:
     else:
         trainer = ReviewTraining(args.human_feedback, args.debug, args.epochs)
     trainer.train()
+    trainer.evaluate_training()
 
 
 if __name__ == "__main__":
