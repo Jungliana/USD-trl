@@ -37,7 +37,7 @@ SENT_KWARGS = {
 
 PPO_CONFIG = PPOConfig(
     batch_size=1,
-    learning_rate=1.41e-5,
+    learning_rate=1.41e-6,
     seed=SEED,
     log_with="wandb",
     task_name="review generation",
