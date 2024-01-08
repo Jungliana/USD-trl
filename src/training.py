@@ -43,7 +43,12 @@ class Training:
         return [torch.tensor(1.0, device=self.device)]
 
     def human_reward(self):
-        pass
+        try:
+            reward = param.REWARD_MULTIPLIER * int(input("Reward [0-5]: "))
+        except ValueError:
+            print("Invalid input. Reward set to 0.")
+            reward = 0
+        return [torch.tensor(reward, device=self.device)]
 
     def train(self):
         wandb.init()
@@ -90,12 +95,7 @@ class TranslationTraining(Training):
                 if self.debug:
                     print(f'Reward: {reward[0].item()}')
             else:
-                try:
-                    reward = param.MT_REWARD_MULTIPLIER * int(input("Reward [0-5]: "))
-                except ValueError:
-                    print("Invalid input. Reward set to 0.")
-                    reward = 0
-                reward = [torch.tensor(reward, device=self.device)]
+                reward = self.human_reward()
 
             # train model for one step with ppo
             train_stats = self.ppo_trainer.step([query_tensor[0]], [response_tensor[0]], reward)
@@ -145,17 +145,12 @@ class ReviewTraining(Training):
             # define a reward for response
             if not self.human_feedback:
                 pipe_outputs = self.pipeline(response_txt, **param.REV_SENT_KWARGS)
-                reward = next(val for val in pipe_outputs if val["label"] == param.REV_LABEL)['score']
+                reward = next(val for val in pipe_outputs if val["label"] == param.LABEL)['score']
                 reward = [torch.tensor(reward, device=self.device)]
                 if self.debug:
                     print(f'Reward: {reward[0].item()}')
             else:
-                try:
-                    reward = param.REV_REWARD_MULTIPLIER * int(input("Reward [0-5]: "))
-                except ValueError:
-                    print("Invalid input. Reward set to 0.")
-                    reward = 0
-                reward = [torch.tensor(reward, device=self.device)]
+                reward = self.human_reward()
 
             # train model for one step with ppo
             train_stats = self.ppo_trainer.step([query_tensor[0]], [response_tensor[0]], reward)

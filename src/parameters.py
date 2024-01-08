@@ -1,14 +1,16 @@
 from trl import PPOConfig
 
+REWARD_MULTIPLIER = 0.2
+SEED = 2345
+
+
 # ----- REVIEWS TRAININGS -----
 REV_MODEL = "Zohar/distilgpt2-finetuned-restaurant-reviews"
 REV_REWARD_MODEL = "finiteautomata/bertweet-base-sentiment-analysis"
 REV_DATASET = "yelp_review_full"
-REV_SEED = 2345
 REV_OUTPUT_MIN_LEN = 10
 REV_OUTPUT_MAX_LEN = 24
-REV_REWARD_MULTIPLIER = 0.2
-REV_LABEL = "POS"
+LABEL = "POS"
 
 REV_DATA_CONFIG = {
     "start_review_words": 5,
@@ -17,7 +19,6 @@ REV_DATA_CONFIG = {
     "max_review_value": 4,
     "min_review_value": 0,
     "test_train_split": 0.99,
-    "random_state": 2345,
 }
 
 REV_GEN_KWARGS = {
@@ -37,6 +38,7 @@ REV_SENT_KWARGS = {
 REV_PPO_CONFIG = PPOConfig(
     batch_size=1,
     learning_rate=1.41e-5,
+    seed=SEED,
     log_with="wandb",
     task_name="review generation",
     model_name=REV_MODEL,
@@ -49,14 +51,12 @@ REV_PPO_CONFIG = PPOConfig(
 # ----- MACHINE TRANSLATION TRAININGS -----
 MT_DATA_FILE = "data/processed/translations.csv"
 MT_MODEL = "Helsinki-NLP/opus-mt-pl-en"
-MT_SEED = 2345
-MT_REWARD_MULTIPLIER = 0.2
 MT_TEST_SPLIT = 0.99
 
 MT_PPO_CONFIG = PPOConfig(
     batch_size=1,
     learning_rate=1e-6,
-    seed=MT_SEED,
+    seed=SEED,
     log_with="wandb",
     task_name="machine translation",
     model_name="opus-mt-pl-en",
