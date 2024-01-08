@@ -1,3 +1,5 @@
+from pathlib import Path
+from datetime import datetime
 from trl import PPOConfig
 
 REWARD_MULTIPLIER = 0.2
@@ -9,6 +11,9 @@ RV_MODEL = "Zohar/distilgpt2-finetuned-restaurant-reviews"
 RV_REWARD_MODEL = "finiteautomata/bertweet-base-sentiment-analysis"
 RV_DATASET = "yelp_review_full"
 RV_LABEL = "POS"
+RV_RESULT_FILE = Path("results") / "review" / (
+    "RV" + datetime.now().strftime("%Y-%m-%d_%H-%M-%S") + ".csv"
+    )
 
 RV_DATA_CONFIG = {
     "start_review_words": 5,
@@ -16,7 +21,7 @@ RV_DATA_CONFIG = {
     "max_text_len": 120,
     "max_review_value": 4,
     "min_review_value": 0,
-    "test_train_split": 0.95,
+    "test_train_split": 0.8,
 }
 
 RV_GENERATION_KWARGS = {
@@ -35,7 +40,7 @@ RV_SENTIMENT_KWARGS = {
 
 RV_PPO_CONFIG = PPOConfig(
     batch_size=1,
-    learning_rate=1.41e-6,
+    learning_rate=1e-6,
     seed=SEED,
     log_with="wandb",
     task_name="review generation",
@@ -49,13 +54,16 @@ RV_PPO_CONFIG = PPOConfig(
 # ----- MACHINE TRANSLATION TRAININGS -----
 MT_DATA_FILE = "data/processed/translations.csv"
 MT_MODEL = "Helsinki-NLP/opus-mt-pl-en"
-MT_TEST_SPLIT = 0.95
+MT_TEST_SPLIT = 0.5
+MT_RESULT_FILE = Path("results") / "translation" / (
+    "MT" + datetime.now().strftime("%Y-%m-%d_%H-%M-%S") + ".csv"
+    )
 
 MT_PPO_CONFIG = PPOConfig(
     batch_size=1,
     learning_rate=1e-6,
     seed=SEED,
-    #log_with="wandb",
+    log_with="wandb",
     task_name="machine translation",
     model_name=MT_MODEL,
     query_dataset="opus-100-corpus",

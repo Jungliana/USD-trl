@@ -1,13 +1,11 @@
 import torch
-from datetime import datetime
-from pathlib import Path
 
 from pandas import DataFrame
 from evaluate import load, EvaluationModule
 from transformers import pipeline, Pipeline, AutoTokenizer, AutoModelForSequenceClassification
 from trl import PPOTrainer, create_reference_model, PreTrainedModelWrapper, \
                 AutoModelForCausalLMWithValueHead, AutoModelForSeq2SeqLMWithValueHead
-#import wandb
+import wandb
 
 import src.parameters as param
 from src.metrics import translation_reward
@@ -53,9 +51,9 @@ class Training:
         return [torch.tensor(reward, device=self.device)]
 
     def train(self) -> None:
-        #wandb.init()
+        wandb.init()
         for i in range(self.epochs):
-            print(f"----- Epoch [{i}|{self.epochs-1}] ------")
+            print(f"----- Epoch [{i+1}|{self.epochs}] ------")
             self.training_loop()
 
 
@@ -135,9 +133,7 @@ class TranslationTraining(Training):
                              "response_after": response_after,
                              "reward_before": reward_before,
                              "reward_after": reward_after})
-        results.to_csv(
-            Path("results") / "translation" / ("MT" + str(datetime.now()) + ".csv"), index=False
-            )
+        results.to_csv(param.MT_RESULT_FILE, index=False, sep="|")
 
 
 class ReviewTraining(Training):
@@ -208,27 +204,20 @@ class ReviewTraining(Training):
 
         for text in self.test_dataset:
             queries.append(text)
-
-            # Response before training
             query_tensor = self.tokenizer.encode(text, return_tensors="pt").to(self.device)
-            response_tensor = self.model_ref.generate(list(query_tensor),
-                                                      return_prompt=True,
-                                                      pad_token_id=self.tokenizer.eos_token_id,
-                                                      **param.RV_GENERATION_KWARGS)
-            response_txt = self.tokenizer.decode(response_tensor[0], skip_special_tokens=True)
-            response_before.append(response_txt)
-            pipe_outputs = self.pipeline(response_txt, **param.RV_SENTIMENT_KWARGS)
+            response, ref_response = self.ppo_trainer.generate(list(query_tensor),
+                                                               return_prompt=True,
+                                                               generate_ref_response=True,
+                                                               pad_token_id=self.tokenizer.eos_token_id,
+                                                               **param.RV_GENERATION_KWARGS)
+            ref_response_txt = self.tokenizer.decode(ref_response[0], skip_special_tokens=True)
+            response_txt = self.tokenizer.decode(response[0], skip_special_tokens=True)
+            response_before.append(ref_response_txt)
+            response_after.append(response_txt)
+
+            pipe_outputs = self.pipeline(ref_response_txt, **param.RV_SENTIMENT_KWARGS)
             reward = next(val for val in pipe_outputs if val["label"] == param.RV_LABEL)["score"]
             reward_before.append(reward)
-
-            # Response after
-            query_tensor = self.tokenizer.encode(text, return_tensors="pt").to(self.device)
-            response_tensor = self.model.generate(list(query_tensor),
-                                                  return_prompt=True,
-                                                  pad_token_id=self.tokenizer.eos_token_id,
-                                                  **param.RV_GENERATION_KWARGS)
-            response_txt = self.tokenizer.decode(response_tensor[0], skip_special_tokens=True)
-            response_after.append(response_txt)
             pipe_outputs = self.pipeline(response_txt, **param.RV_SENTIMENT_KWARGS)
             reward = next(val for val in pipe_outputs if val["label"] == param.RV_LABEL)["score"]
             reward_after.append(reward)
@@ -238,6 +227,4 @@ class ReviewTraining(Training):
                              "response_after": response_after,
                              "reward_before": reward_before,
                              "reward_after": reward_after})
-        results.to_csv(
-            Path("results") / "review" / ("RV" + str(datetime.now()) + ".csv"), index=False
-            )
+        results.to_csv(param.RV_RESULT_FILE, index=False, sep="|")
