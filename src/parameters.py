@@ -5,14 +5,12 @@ SEED = 2345
 
 
 # ----- REVIEWS TRAININGS -----
-MODEL = "Zohar/distilgpt2-finetuned-restaurant-reviews"
-REWARD_MODEL = "finiteautomata/bertweet-base-sentiment-analysis"
-DATASET = "yelp_review_full"
-OUTPUT_MIN_LEN = 10
-OUTPUT_MAX_LEN = 24
-LABEL = "POS"
+RV_MODEL = "Zohar/distilgpt2-finetuned-restaurant-reviews"
+RV_REWARD_MODEL = "finiteautomata/bertweet-base-sentiment-analysis"
+RV_DATASET = "yelp_review_full"
+RV_LABEL = "POS"
 
-DATA_CONFIG = {
+RV_DATA_CONFIG = {
     "start_review_words": 5,
     "min_text_len": 80,
     "max_text_len": 120,
@@ -21,7 +19,7 @@ DATA_CONFIG = {
     "test_train_split": 0.95,
 }
 
-GEN_KWARGS = {
+RV_GENERATION_KWARGS = {
     "min_length": -1,
     "top_k": 0.0,
     "top_p": 1.0,
@@ -29,21 +27,21 @@ GEN_KWARGS = {
     "max_new_tokens": 25,
 }
 
-SENT_KWARGS = {
+RV_SENTIMENT_KWARGS = {
     "top_k": None,
     "function_to_apply": "softmax",
     "batch_size": 1,
 }
 
-PPO_CONFIG = PPOConfig(
+RV_PPO_CONFIG = PPOConfig(
     batch_size=1,
     learning_rate=1.41e-6,
     seed=SEED,
     log_with="wandb",
     task_name="review generation",
-    model_name=MODEL,
-    query_dataset=DATASET,
-    reward_model=REWARD_MODEL,
+    model_name=RV_MODEL,
+    query_dataset=RV_DATASET,
+    reward_model=RV_REWARD_MODEL,
     tracker_project_name="trl-review",
 )
 

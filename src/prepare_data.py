@@ -2,7 +2,7 @@ import pandas as pd
 import pathlib
 from datasets import load_dataset
 from sklearn.model_selection import train_test_split
-from src.parameters import DATA_CONFIG as CONFIG, MT_DATA_FILE, SEED, MT_TEST_SPLIT
+from src.parameters import RV_DATA_CONFIG as CONFIG, MT_DATA_FILE, SEED, MT_TEST_SPLIT
 
 
 def prepare_translation_dataset(filepath: pathlib.Path = MT_DATA_FILE) -> pd.DataFrame:
@@ -27,7 +27,7 @@ def prepare_review_dataset(dataset_name: str = "yelp_review_full") -> list[str]:
     return train_ds["query"]
 
 
-def process_translations():
+def process_translations() -> None:
     # Data source: https://data.statmt.org/opus-100-corpus/v1.0/supervised/en-pl/
     path = pathlib.Path(__file__)
     read_pl_path = path.parents[2] / "data" / "raw" / "opus-en-pl-dev-pl.txt"
@@ -39,7 +39,7 @@ def process_translations():
     with open(read_en_path, encoding="utf8") as file:
         lines_en = [line.rstrip() for line in file]
     translations = pd.DataFrame({"Polish": lines_pl, "English": lines_en})
-    translations = translations.loc[translations['Polish'].str.len() > 50]
-    translations = translations.loc[translations['Polish'].str.len() < 80]
+    translations = translations.loc[translations["Polish"].str.len() > 50]
+    translations = translations.loc[translations["Polish"].str.len() < 80]
 
     translations.to_csv(write_path, index=False)

@@ -25,7 +25,7 @@ def get_args() -> argparse.Namespace:
         help="Choose training task.",
     )
 
-    def positive_int(text: str):
+    def positive_int(text: str) -> int:
         val = int(text)
         if val <= 0:
             raise argparse.ArgumentTypeError(f"{val} is not a valid value for positive integer.")

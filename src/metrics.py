@@ -10,7 +10,7 @@ def jaccard(sentence1: str, sentence2: str) -> float:
 
 def compute_bleu(translation: str, reference: str, bleu: EvaluationModule) -> float:
     results = bleu.compute(predictions=translation, references=[reference])
-    return results['bleu']
+    return results["bleu"]
 
 
 def translation_reward(translation: str, reference: str,
