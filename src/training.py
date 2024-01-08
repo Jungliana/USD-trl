@@ -19,6 +19,8 @@ class Training:
         self.epochs: int = epochs
         self.device: torch.device = self.choose_device()
         self.dataset = self.prepare_dataset()
+        self.train_dataset = self.dataset[0]
+        self.test_dataset = self.dataset[1]
         self.model: PreTrainedModelWrapper = None
 
     def choose_device(self) -> torch.device:
@@ -27,8 +29,8 @@ class Training:
         """
         return torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    def prepare_dataset(self) -> None:
-        return None
+    def prepare_dataset(self) -> tuple[str]:
+        return ("train", "test")
 
     def training_loop(self) -> None:
         # encode a query
@@ -73,7 +75,7 @@ class TranslationTraining(Training):
         return prepare_translation_dataset(param.MT_DATA_FILE)
 
     def training_loop(self) -> None:
-        for text, translation in zip(self.dataset["Polish"], self.dataset["English"]):
+        for text, translation in zip(self.train_dataset["Polish"], self.train_dataset["English"]):
             # encode a query
             query_tensor = self.tokenizer.encode(text, return_tensors="pt").to(self.device)
             if self.human_feedback or self.debug:
@@ -99,6 +101,9 @@ class TranslationTraining(Training):
             train_stats = self.ppo_trainer.step([query_tensor[0]], [response_tensor[0]], reward)
             self.ppo_trainer.log_stats(train_stats, {"query": [text],
                                                      "response": result_txt}, reward)
+
+    def evaluate_training(self):
+        pass
 
 
 class ReviewTraining(Training):
@@ -127,7 +132,7 @@ class ReviewTraining(Training):
         return sentiment_pipe
 
     def training_loop(self) -> None:
-        for query_txt in self.dataset:
+        for query_txt in self.train_dataset:
             # encode a query
             query_tensor = self.tokenizer.encode(query_txt, return_tensors="pt").to(self.device)
             if self.human_feedback or self.debug:

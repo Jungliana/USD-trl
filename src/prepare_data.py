@@ -7,8 +7,8 @@ from src.parameters import RV_DATA_CONFIG as CONFIG, MT_DATA_FILE, SEED, MT_TEST
 
 def prepare_translation_dataset(filepath: pathlib.Path = MT_DATA_FILE) -> pd.DataFrame:
     translations = pd.read_csv(filepath)
-    train_dataset, _ = train_test_split(translations, test_size=MT_TEST_SPLIT, random_state=SEED)
-    return train_dataset
+    train_dataset, test_dataset = train_test_split(translations, test_size=MT_TEST_SPLIT, random_state=SEED)
+    return train_dataset, test_dataset
 
 
 def prepare_review_dataset(dataset_name: str = "yelp_review_full") -> list[str]:
@@ -22,9 +22,9 @@ def prepare_review_dataset(dataset_name: str = "yelp_review_full") -> list[str]:
     dataset = dataset.filter(lambda x: x["label"] < CONFIG["max_review_value"], batched=False)
     dataset = dataset.filter(lambda x: x["label"] > CONFIG["min_review_value"], batched=False)
     dataset = dataset.map(cut, batched=False)
-    train_ds, _ = train_test_split(dataset, test_size=CONFIG["test_train_split"],
+    train_ds, test_ds = train_test_split(dataset, test_size=CONFIG["test_train_split"],
                                    random_state=SEED)
-    return train_ds["query"]
+    return train_ds["query"], test_ds["query"]
 
 
 def process_translations() -> None:
