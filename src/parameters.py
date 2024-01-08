@@ -5,14 +5,14 @@ SEED = 2345
 
 
 # ----- REVIEWS TRAININGS -----
-REV_MODEL = "Zohar/distilgpt2-finetuned-restaurant-reviews"
-REV_REWARD_MODEL = "finiteautomata/bertweet-base-sentiment-analysis"
-REV_DATASET = "yelp_review_full"
-REV_OUTPUT_MIN_LEN = 10
-REV_OUTPUT_MAX_LEN = 24
+MODEL = "Zohar/distilgpt2-finetuned-restaurant-reviews"
+REWARD_MODEL = "finiteautomata/bertweet-base-sentiment-analysis"
+DATASET = "yelp_review_full"
+OUTPUT_MIN_LEN = 10
+OUTPUT_MAX_LEN = 24
 LABEL = "POS"
 
-REV_DATA_CONFIG = {
+DATA_CONFIG = {
     "start_review_words": 5,
     "min_text_len": 80,
     "max_text_len": 120,
@@ -21,7 +21,7 @@ REV_DATA_CONFIG = {
     "test_train_split": 0.99,
 }
 
-REV_GEN_KWARGS = {
+GEN_KWARGS = {
     "min_length": -1,
     "top_k": 0.0,
     "top_p": 1.0,
@@ -29,21 +29,21 @@ REV_GEN_KWARGS = {
     "max_new_tokens": 25,
 }
 
-REV_SENT_KWARGS = {
+SENT_KWARGS = {
     "top_k": None,
     "function_to_apply": "softmax",
     "batch_size": 1,
 }
 
-REV_PPO_CONFIG = PPOConfig(
+PPO_CONFIG = PPOConfig(
     batch_size=1,
     learning_rate=1.41e-5,
     seed=SEED,
     log_with="wandb",
     task_name="review generation",
-    model_name=REV_MODEL,
-    query_dataset=REV_DATASET,
-    reward_model=REV_REWARD_MODEL,
+    model_name=MODEL,
+    query_dataset=DATASET,
+    reward_model=REWARD_MODEL,
     tracker_project_name="trl-review",
 )
 
@@ -59,7 +59,7 @@ MT_PPO_CONFIG = PPOConfig(
     seed=SEED,
     log_with="wandb",
     task_name="machine translation",
-    model_name="opus-mt-pl-en",
+    model_name=MT_MODEL,
     query_dataset="opus-100-corpus",
     reward_model="bleu + jaccard",
     tracker_project_name="trl-translation",

@@ -108,21 +108,21 @@ class ReviewTraining(Training):
     """
     def __init__(self, human_feedback: bool = False, debug: bool = False, epochs: int = 1) -> None:
         super().__init__(human_feedback, debug, epochs)
-        self.model = AutoModelForCausalLMWithValueHead.from_pretrained(param.REV_MODEL)
+        self.model = AutoModelForCausalLMWithValueHead.from_pretrained(param.MODEL)
         self.model.to(self.device)
         self.model_ref = create_reference_model(self.model).to(self.device)
-        self.tokenizer = AutoTokenizer.from_pretrained(param.REV_MODEL)
+        self.tokenizer = AutoTokenizer.from_pretrained(param.MODEL)
         self.tokenizer.pad_token = self.tokenizer.eos_token
-        self.ppo_trainer = PPOTrainer(param.REV_PPO_CONFIG, self.model,
+        self.ppo_trainer = PPOTrainer(param.PPO_CONFIG, self.model,
                                       self.model_ref, self.tokenizer)
         self.pipeline: Pipeline = self.get_pipeline()
 
     def prepare_dataset(self) -> list[str]:
-        return prepare_review_dataset(param.REV_DATASET)
+        return prepare_review_dataset(param.DATASET)
 
     def get_pipeline(self):
-        reward_tokenizer = AutoTokenizer.from_pretrained(param.REV_REWARD_MODEL)
-        reward_model = AutoModelForSequenceClassification.from_pretrained(param.REV_REWARD_MODEL)
+        reward_tokenizer = AutoTokenizer.from_pretrained(param.REWARD_MODEL)
+        reward_model = AutoModelForSequenceClassification.from_pretrained(param.REWARD_MODEL)
         sentiment_pipe = pipeline("sentiment-analysis", model=reward_model,
                                   device=self.device, tokenizer=reward_tokenizer)
         return sentiment_pipe
@@ -137,14 +137,14 @@ class ReviewTraining(Training):
 
             # generate model response
             response_tensor = self.ppo_trainer.generate([item for item in query_tensor],
-                                                        return_prompt=True, **param.REV_GEN_KWARGS)
+                                                        return_prompt=True, **param.GEN_KWARGS)
             response_txt = self.tokenizer.decode(response_tensor[0], skip_special_tokens=True)
             if self.human_feedback or self.debug:
                 print(f'Response: {response_txt}')
 
             # define a reward for response
             if not self.human_feedback:
-                pipe_outputs = self.pipeline(response_txt, **param.REV_SENT_KWARGS)
+                pipe_outputs = self.pipeline(response_txt, **param.SENT_KWARGS)
                 reward = next(val for val in pipe_outputs if val["label"] == param.LABEL)['score']
                 reward = [torch.tensor(reward, device=self.device)]
                 if self.debug:
