@@ -20,10 +20,10 @@ RV_DATA_CONFIG = {
     "label_column": "label",
     "start_review_words": 5,
     "min_text_len": 80,
-    "max_text_len": 120,
+    "max_text_len": 100,
     "max_review_value": 4,
     "min_review_value": 0,
-    "test_train_split": 0.85,
+    "test_train_split": 0.8,
 }
 
 RV_GENERATION_KWARGS = {

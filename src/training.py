@@ -163,10 +163,6 @@ class ReviewTraining(Training):
         for query_txt in self.train_dataset:
             # encode a query
             query_tensor = self.tokenizer.encode(query_txt, return_tensors="pt").to(self.device)
-            if self.human_feedback or self.debug:
-                print("\n----------------------------")
-                print(f"Query: {query_txt}")
-
             # generate model response
             response_tensor = self.ppo_trainer.generate(list(query_tensor),
                                                         return_prompt=True,
@@ -174,6 +170,8 @@ class ReviewTraining(Training):
                                                         **param.RV_GENERATION_KWARGS)
             response_txt = self.tokenizer.decode(response_tensor[0], skip_special_tokens=True)
             if self.human_feedback or self.debug:
+                print("\n----------------------------")
+                print(f"Query: {query_txt}")
                 print(f"Response: {response_txt}")
 
             # define a reward for response
