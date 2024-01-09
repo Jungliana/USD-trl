@@ -45,7 +45,7 @@ class Training:
             reward = param.REWARD_MULTIPLIER * int(input("Reward [0-5]: "))
         except ValueError:
             print("Invalid input. Reward set to 0.")
-            reward = 0
+            reward = 0.
         return [torch.tensor(reward, device=self.device)]
 
     def train(self) -> None:

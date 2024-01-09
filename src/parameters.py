@@ -23,7 +23,7 @@ RV_DATA_CONFIG = {
     "max_text_len": 120,
     "max_review_value": 4,
     "min_review_value": 0,
-    "test_train_split": 0.8,
+    "test_train_split": 0.85,
 }
 
 RV_GENERATION_KWARGS = {
