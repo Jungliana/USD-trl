@@ -56,7 +56,7 @@ RV_PPO_CONFIG = PPOConfig(
 # ----- MACHINE TRANSLATION TRAININGS -----
 MT_DATA_FILE = "data/processed/translations.csv"
 MT_MODEL = "Helsinki-NLP/opus-mt-pl-en"
-MT_TEST_SPLIT = 0.5
+MT_TEST_SPLIT = 0.6
 MT_RESULT_FILE = Path("results") / "translation" / (
     "MT" + datetime.now().strftime("%Y-%m-%d_%H-%M-%S") + ".csv"
     )

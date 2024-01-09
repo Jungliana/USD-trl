@@ -3,7 +3,7 @@ import torch
 from pandas import DataFrame
 from evaluate import load, EvaluationModule
 from transformers import pipeline, Pipeline, AutoTokenizer, AutoModelForSequenceClassification
-from trl import PPOTrainer, create_reference_model, PreTrainedModelWrapper, \
+from trl import create_reference_model, set_seed, PPOTrainer, PreTrainedModelWrapper,  \
                 AutoModelForCausalLMWithValueHead, AutoModelForSeq2SeqLMWithValueHead
 import wandb
 
@@ -15,6 +15,7 @@ from src.prepare_data import prepare_review_dataset, prepare_translation_dataset
 class Training:
     def __init__(self, human_feedback: bool = False, debug: bool = False, epochs: int = 1) -> None:
         torch.manual_seed(param.SEED)
+        set_seed(param.SEED)
         self.human_feedback: bool = human_feedback
         self.debug: bool = debug
         self.epochs: int = epochs
@@ -83,7 +84,7 @@ class TranslationTraining(Training):
             # get model response
             response_tensor = self.model.generate(input_ids=query_tensor)
             result_txt = [self.tokenizer.decode(response_tensor[0], skip_special_tokens=True)]
-            if self.debug:
+            if self.human_feedback or self.debug:
                 print(f"Response sentence: {result_txt[0]}")
 
             # define a reward for response
