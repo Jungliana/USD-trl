@@ -18,12 +18,12 @@ RV_RESULT_FILE = Path("results") / "review" / (
 RV_DATA_CONFIG = {
     "text_column": "text",
     "label_column": "label",
-    "start_review_words": 5,
+    "start_review_words": 4,
     "min_text_len": 80,
     "max_text_len": 100,
     "max_review_value": 4,
     "min_review_value": 0,
-    "test_train_split": 0.8,
+    "test_train_split": 0.9,
 }
 
 RV_GENERATION_KWARGS = {
