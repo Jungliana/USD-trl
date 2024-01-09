@@ -2,9 +2,6 @@
 notebooks/wandb/*
 wandb
 
-# results
-results/*
-
 # models
 models/yelpBERT/model.safetensors
 
