@@ -14,6 +14,7 @@ from src.prepare_data import prepare_review_dataset, prepare_translation_dataset
 
 class Training:
     def __init__(self, human_feedback: bool = False, debug: bool = False, epochs: int = 1) -> None:
+        torch.manual_seed(param.SEED)
         self.human_feedback: bool = human_feedback
         self.debug: bool = debug
         self.epochs: int = epochs
