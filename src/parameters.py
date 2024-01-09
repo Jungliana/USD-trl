@@ -1,3 +1,5 @@
+from pathlib import Path
+from datetime import datetime
 from trl import PPOConfig
 
 REWARD_MULTIPLIER = 0.2
@@ -5,23 +7,26 @@ SEED = 2345
 
 
 # ----- REVIEWS TRAININGS -----
-MODEL = "Zohar/distilgpt2-finetuned-restaurant-reviews"
-REWARD_MODEL = "finiteautomata/bertweet-base-sentiment-analysis"
-DATASET = "yelp_review_full"
-OUTPUT_MIN_LEN = 10
-OUTPUT_MAX_LEN = 24
-LABEL = "POS"
+RV_MODEL = "Zohar/distilgpt2-finetuned-restaurant-reviews"
+RV_REWARD_MODEL = "finiteautomata/bertweet-base-sentiment-analysis"
+RV_DATASET = "yelp_review_full"
+RV_LABEL = "POS"
+RV_RESULT_FILE = Path("results") / "review" / (
+    "RV" + datetime.now().strftime("%Y-%m-%d_%H-%M-%S") + ".csv"
+    )
 
-DATA_CONFIG = {
-    "start_review_words": 5,
+RV_DATA_CONFIG = {
+    "text_column": "text",
+    "label_column": "label",
+    "start_review_words": 4,
     "min_text_len": 80,
-    "max_text_len": 120,
+    "max_text_len": 100,
     "max_review_value": 4,
     "min_review_value": 0,
-    "test_train_split": 0.95,
+    "test_train_split": 0.9,
 }
 
-GEN_KWARGS = {
+RV_GENERATION_KWARGS = {
     "min_length": -1,
     "top_k": 0.0,
     "top_p": 1.0,
@@ -29,21 +34,21 @@ GEN_KWARGS = {
     "max_new_tokens": 25,
 }
 
-SENT_KWARGS = {
+RV_SENTIMENT_KWARGS = {
     "top_k": None,
     "function_to_apply": "softmax",
     "batch_size": 1,
 }
 
-PPO_CONFIG = PPOConfig(
+RV_PPO_CONFIG = PPOConfig(
     batch_size=1,
-    learning_rate=1.41e-6,
+    learning_rate=1e-6,
     seed=SEED,
     log_with="wandb",
     task_name="review generation",
-    model_name=MODEL,
-    query_dataset=DATASET,
-    reward_model=REWARD_MODEL,
+    model_name=RV_MODEL,
+    query_dataset=RV_DATASET,
+    reward_model=RV_REWARD_MODEL,
     tracker_project_name="trl-review",
 )
 
@@ -51,7 +56,10 @@ PPO_CONFIG = PPOConfig(
 # ----- MACHINE TRANSLATION TRAININGS -----
 MT_DATA_FILE = "data/processed/translations.csv"
 MT_MODEL = "Helsinki-NLP/opus-mt-pl-en"
-MT_TEST_SPLIT = 0.95
+MT_TEST_SPLIT = 0.6
+MT_RESULT_FILE = Path("results") / "translation" / (
+    "MT" + datetime.now().strftime("%Y-%m-%d_%H-%M-%S") + ".csv"
+    )
 
 MT_PPO_CONFIG = PPOConfig(
     batch_size=1,
