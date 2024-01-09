@@ -16,6 +16,8 @@ RV_RESULT_FILE = Path("results") / "review" / (
     )
 
 RV_DATA_CONFIG = {
+    "text_column": "text",
+    "label_column": "label",
     "start_review_words": 5,
     "min_text_len": 80,
     "max_text_len": 120,

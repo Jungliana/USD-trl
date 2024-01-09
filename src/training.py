@@ -33,10 +33,6 @@ class Training:
         return ("train", "test")
 
     def training_loop(self) -> None:
-        # encode a query
-        # generate model response
-        # define reward for a response
-        # train model with ppo
         pass
 
     def generate_reward(self) -> list[torch.Tensor]:
